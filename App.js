@@ -14,7 +14,10 @@ const MainNavigator = createBottomTabNavigator(
   {
     initialRouteName: "Home",
     tabBarOptions :{
-      showIcon:false
+      showIcon:false,
+      style:{
+        alignItems:'center'
+      }
     }
   });
 
