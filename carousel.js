@@ -1,9 +1,15 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native'; 
-import Carousel from 'react-native-snap-carousel';
+import { View, Text, Image, StyleSheet, Dimensions } from 'react-native';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
+
+const paginatonSettings = {
+    inactiveDotOpacity: 0.45,
+    inactiveDotScale: 0.55
+}
 
 export default class CarouselComponent extends React.Component {
     state = {
+        currentSlideIndex: 0,
         entries: [{
             title: 'first',
             imageUrl: 'https://offers.freecharge.in/RAPI/721x284.png'
@@ -29,28 +35,46 @@ export default class CarouselComponent extends React.Component {
     };
     
     _renderItem ({item, index}) {
+        const {height, width} = Dimensions.get('window');
         return (
             <View style={styles.slide}>
                 <Text style={styles.title}>{ item.title }</Text>
                 <Image
                     source={{uri: item.imageUrl}}
-                    style={{width: 400, height: 400}}
+                    style={{width: width - 20, height: 158}}
                 />
             </View>
         );
     }
+
+    onBeforeSnapToItem = (slideIndex) => {
+        this.setState({ currentSlideIndex: slideIndex });
+    }
  
     render() {
+        const {height, width} = Dimensions.get('window');
         return (
             <View style={styles.carouselContainer}>
-                <Text>This is carousel section..</Text>
-                <Carousel
-                    ref={(c) => { this._carousel = c; }}
-                    data={this.state.entries}
-                    renderItem={this._renderItem}
-                    sliderWidth={300}
-                    itemWidth={290}
-                />
+                <View style={styles.carousel}>
+                    <Carousel
+                        ref={(c) => { this._carousel = c; }}
+                        data={this.state.entries}
+                        renderItem={this._renderItem}
+                        sliderWidth={width}
+                        containerCustomStyle={styles.carousel}
+                        itemWidth={width - 20}
+                        onSnapToItem = {this.onBeforeSnapToItem}
+                    />
+                </View>
+                <View style={styles.pagination}>
+                    <Pagination
+                        dotsLength={this.state.entries.length}
+                        activeDotIndex={this.state.currentSlideIndex}
+                        //   dotStyle={styles.sliderPaginationDot}
+                        inactiveDotOpacity={paginatonSettings.inactiveDotOpacity}
+                        inactiveDotScale={paginatonSettings.inactiveDotScale}
+                    />
+                </View>
             </View>
         );
     }
@@ -58,14 +82,23 @@ export default class CarouselComponent extends React.Component {
 
 const styles = StyleSheet.create({
     carouselContainer: {
-        borderColor: '#ccc',
-        borderWidth: 2,
-        borderStyle: 'solid'
+        marginTop: 50,
+        marginBottom: 50,
+        // borderColor: '#ccc',
+        // borderWidth: 2,
+        // borderStyle: 'solid'
+    },
+    carousel: {
+        height: 180
     },
     slide: {
-        borderColor: '#aaa',
-        borderWidth: 4,
-        borderStyle: 'dotted'
+        // borderColor: '#aaa',
+        // borderWidth: 4,
+        // borderStyle: 'dotted'
+    },
+    pagination: {
+        height: 100,
+        marginTop: -15
     },
     title: {
 

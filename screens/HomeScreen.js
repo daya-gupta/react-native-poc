@@ -10,6 +10,7 @@ class HomeScreen extends React.Component {
     render() {
       const {navigate} = this.props.navigation;
       return (
+          // <CarouselComponent />
           <View style={styles.container}>
               <Text style={styles.welcome}>Welcome to Home Screen!</Text>
               <View>
