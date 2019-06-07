@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, Button} from 'react-native';
 import CarouselComponent from '../carousel';
 
 
@@ -7,12 +7,23 @@ class HomeScreen extends React.Component {
     static navigationOptions = {
       title: 'Home',
     };
+    // goToRechargePage = () => {
+    //   console.log('go to recharge page');
+    //   this.props.navigation.navigate('Offers');
+    // }
     render() {
       const {navigate} = this.props.navigation;
       return (
-          // <CarouselComponent />
           <View style={styles.container}>
               <Text style={styles.welcome}>Welcome to Home Screen!</Text>
+              <View>
+                <Text>Recharge & Bill Payments</Text>
+                <Button
+                  onPress={(page) => navigate(page='Recharge')}
+                  title="Recharge your phone"
+                  accessibilityLabel="Click to recharge your phone"
+                />
+              </View>
               <View>
                 <CarouselComponent />
               </View>
