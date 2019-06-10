@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, TextInput, Button, TouchableHighlight, Alert, Modal} from 'react-native';
+import { Platform,StyleSheet, Text, View, TextInput, Button, TouchableHighlight, Alert, Modal,PermissionsAndroid} from 'react-native';
 import Contacts from 'react-native-contacts';
 
 export default class RechargeScreen extends React.Component {
@@ -7,24 +7,30 @@ export default class RechargeScreen extends React.Component {
       title: 'Recharge',
     };
     state = { textInput: '', showModal: false, contacts: [] };
-    // componentWillMount() {
-    //     PermissionsAndroid.request(
-    //         PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-    //         {
-    //           'title': 'Contacts',
-    //           'message': 'This app would like to view your contacts.'
-    //         }
-    //     ).then(() => {
-    //         Contacts.getAll((err, contacts) => {
-    //           if (err === 'denied'){
-    //             // error
-    //           } else {
-    //             // contacts returned in Array
-    //             Alert.alert(contacts[0])
-    //           }
-    //         })
-    //     })
-    // }
+    async _requestContactPermissionAndroid() {
+        try {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+                {
+                    'title': 'Contacts',
+                    'message': 'This app would like to view your contacts.'
+                }
+            )
+
+            if (granted === PermissionsAndroid.RESULTS.GRANTED){
+                console.log("permission granted")
+            } else {
+                console.log("permission not granted")
+            }
+        } catch(err){
+            console.warn(err);
+        }
+    }
+
+    async componentDidMount() {
+        if(Platform.OS === 'android')
+            await this._requestContactPermissionAndroid()
+    }
     updateTextInput = (input) => {
         this.setState({ textInput: input });
     }
