@@ -1,11 +1,20 @@
 import React, {Component} from 'react';
 import { Platform,StyleSheet, Text, View, TextInput, Button, TouchableHighlight, Alert, Modal,PermissionsAndroid} from 'react-native';
 import Contacts from 'react-native-contacts';
+import { HeaderBackButton } from 'react-navigation';
 
 export default class RechargeScreen extends React.Component {
-    static navigationOptions = {
-      title: 'Recharge',
-    };
+    static navigationOptions = ({ navigation }) => {
+        return {
+          headerLeft: (
+            <HeaderBackButton
+              title='Home'
+              backTitleVisible={true}
+              onPress={() => navigation.goBack()}
+            />
+          )
+        };
+      }
     state = { textInput: '', showModal: false, contacts: [] };
     async _requestContactPermissionAndroid() {
         try {
