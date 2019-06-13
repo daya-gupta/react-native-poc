@@ -1,12 +1,9 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View, Button} from 'react-native';
 import CarouselComponent from '../carousel';
-
+import HorizontalScrollView from '../components/home/horizontalScrollView';
 
 class HomeScreen extends React.Component {
-    static navigationOptions = {
-      title: 'Home',
-    };
     // goToRechargePage = () => {
     //   console.log('go to recharge page');
     //   this.props.navigation.navigate('Offers');
@@ -26,6 +23,9 @@ class HomeScreen extends React.Component {
               </View>
               <View>
                 <CarouselComponent />
+              </View>
+              <View>
+                <HorizontalScrollView/>
               </View>
           </View>
       );
