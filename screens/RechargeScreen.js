@@ -27,27 +27,51 @@ export default class RechargeScreen extends React.Component {
     };
     async _requestContactPermissionAndroid() {
         try {
-            const granted = await PermissionsAndroid.request(
+            const granted = await PermissionsAndroid.requestMultiple([
                 PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-                {
-                    'title': 'Contacts',
-                    'message': 'This app would like to view your contacts.'
-                }
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                PermissionsAndroid.PERMISSIONS.CAMERA,
+                // PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+                // PermissionsAndroid.PERMISSIONS.RECORD_VIDEO
+             ]
             )
 
-            if (granted === PermissionsAndroid.RESULTS.GRANTED){
-                console.log("permission granted")
-            } else {
-                console.log("permission not granted")
-            }
+            console.log(JSON.stringify(granted));
+
+            // granted.map((item) => {
+            //     if (item === PermissionsAndroid.RESULTS.GRANTED){
+            //         console.log("permission granted")
+            //     } else {
+            //         console.log("permission not granted")
+            //     }
+            // });
+
+            // if (granted === PermissionsAndroid.RESULTS.GRANTED){
+            //     console.log("permission granted")
+            // } else {
+            //     console.log("permission not granted")
+            // }
         } catch(err){
             console.warn(err);
         }
     }
 
+    // checkAndroidPermission = async () => {
+    //     try {
+    //       const permission = PermissionsAndroid.PERMISSIONS.CAMERA;
+    //       await PermissionsAndroid.request(permission);
+    //       Promise.resolve();
+    //     } catch (error) {
+    //       Promise.reject(error);
+    //     }
+    // };
+
     async componentDidMount() {
-        if(Platform.OS === 'android')
-            await this._requestContactPermissionAndroid()
+        if(Platform.OS === 'android') {
+            await this._requestContactPermissionAndroid();
+            // await this.checkAndroidPermission();
+        }
     }
     updateTextInput = (input) => {
         this.setState({ textInput: input });
@@ -136,11 +160,11 @@ export default class RechargeScreen extends React.Component {
             </Modal>
         );
     }
-    takePicture = () => {
-        if (this.camera) {
+    takePicture = (camera) => {
+        if (camera) {
           const options = { quality: 0.5, base64: true };
-          console.log(this.camera.current);
-          this.camera.takePictureAsync()
+          console.log(camera.current);
+          camera.takePictureAsync()
             .then(data => {
                 console.log(data);
                 CameraRoll.saveToCameraRoll(data.uri)
@@ -165,10 +189,11 @@ export default class RechargeScreen extends React.Component {
             assetType: 'Photos',
         })
         .then(r => {
+            Alert.alert(`loaded ${r.edges} items successfylly`);
             this.setState({ photos: r.edges, galleryLoaded: true });
         })
         .catch((err) => {
-            //Error Loading Images
+            Alert.alert('load image error');
         });
     };
     render() {
@@ -183,52 +208,36 @@ export default class RechargeScreen extends React.Component {
                 <View className="camera-section" style={styles.camContainer}>
                     <Text>Welcome to React Native!</Text>
                     <Text>To get started, edit App.js</Text>
+                    <Button title={this.state.galleryLoaded ? 'Unload gallery' : 'Load gallery'} onPress={this._loadGalleryImages} />
                     {/* <Text>{JSON.stringify(RNCamera.Constants.aspect)}</Text> */}
-                    
-                    <RNCamera
-                        ref={ref => {
-                            this.camera = ref;
-                        }}
-                        style={styles.preview}
-                        type={RNCamera.Constants.Type.back}
-                        flashMode={RNCamera.Constants.FlashMode.on}
-                        androidCameraPermissionOptions={{
-                            title: 'Permission to use camera',
-                            message: 'We need your permission to use your camera',
-                            buttonPositive: 'Ok',
-                            buttonNegative: 'Cancel',
-                        }}
-                        androidRecordAudioPermissionOptions={{
-                            title: 'Permission to use audio recording',
-                            message: 'We need your permission to use your audio',
-                            buttonPositive: 'Ok',
-                            buttonNegative: 'Cancel',
-                        }}
-                        onGoogleVisionBarcodesDetected={({ barcodes }) => {
-                            console.log(barcodes);
-                        }}
-                    />
+                    {/* <CameraComponent takePicture={this.takePicture} /> */}
+                    <View>
                         <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
-                        <TouchableOpacity onPress={() => this.takePicture()} style={styles.capture}>
-                            <Text style={{ fontSize: 14 }}> SNAP </Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.takePicture(this.camera)} style={styles.capture}>
+                                <Text style={{ fontSize: 14 }}> SNAP </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <RNCamera
+                            ref={ref => this.camera = ref}
+                            style={styles.preview}
+                            type={RNCamera.Constants.Type.back}
+                        />
                     </View>
 
                     <View>
-                        <Button title={this.state.galleryLoaded ? 'Unload gallery' : 'Load gallery'} onPress={this._loadGalleryImages} />
                         <ScrollView>
-                        {this.state.photos.map((p, i) => {
-                        return (
-                            <Image
-                            key={i}
-                            style={{
-                                width: 300,
-                                height: 100,
-                            }}
-                            source={{ uri: p.node.image.uri }}
-                            />
-                        );
-                        })}
+                            {this.state.photos.map((p, i) => {
+                                return (
+                                    <Image
+                                    key={i}
+                                    style={{
+                                        width: 300,
+                                        height: 100,
+                                    }}
+                                    source={{ uri: p.node.image.uri }}
+                                    />
+                                );
+                            })}
                         </ScrollView>
                     </View>
                 </View>
@@ -272,9 +281,10 @@ const styles = StyleSheet.create({
         // width: 100
     },
     preview: {
-        // flex: 1,
+        flex: 1,
         // justifyContent: 'flex-end',
         // alignItems: 'center',
+        width: '100%'
     },
     capture: {
         flex: 0,
@@ -286,19 +296,3 @@ const styles = StyleSheet.create({
         margin: 20,
     },
 });
-
-
-// birthday: (...)
-// company: (...)
-// emailAddresses: (...)
-// familyName: (...)
-// givenName: (...)
-// hasThumbnail: (...)
-// jobTitle: (...)
-// middleName: (...)
-// note: (...)
-// phoneNumbers: (...)
-// postalAddresses: (...)
-// recordID: (...)
-// thumbnailPath: (...)
-// urlAddresses: (...)
